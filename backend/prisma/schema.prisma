@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  uuid               String   @unique
+  email              String   @unique
+  name               String
+  passwordHash       String
+  createdAt          DateTime @default(now())
+
+  is2faEnabled       Boolean  @default(false)
+  twoFactorSecret    String?
+
+  lockTimeoutSeconds Int      @default(60)
+
+  resetTokenHash     String?
+  resetTokenExpiresAt DateTime?
+
+  balanceUSD         Decimal  @default(15400) @db.Decimal(18, 2)
+  balanceBTC         Decimal  @default(0.1245) @db.Decimal(18, 8)
+  balanceETH         Decimal  @default(1.845) @db.Decimal(18, 8)
+  balanceVRD         Decimal  @default(2500) @db.Decimal(18, 8)
+
+  transactions       Transaction[]
+  devices            Device[]
+  securityLogs       SecurityLog[]
+  tickets            Ticket[]
+
+  @@map("users")
+}
+
+model Transaction {
+  id           String   @id @default(cuid())
+  displayId    String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date         DateTime @default(now())
+  action       String
+  asset        String?
+  flow         String
+  hash         String
+  verification String
+
+  @@index([userId, date])
+  @@map("transactions")
+}
+
+model Device {
+  id               String    @id @default(cuid())
+  displayId        String
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  location         String
+  ip               String
+  status           String    @default("Secondary")
+  refreshTokenHash String    @unique
+  lastActiveAt     DateTime  @default(now())
+  revokedAt        DateTime?
+
+  @@index([userId])
+  @@map("devices")
+}
+
+model SecurityLog {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   DateTime @default(now())
+  action String
+  status String
+
+  @@index([userId, date])
+  @@map("security_logs")
+}
+
+model Ticket {
+  id                  String             @id @default(cuid())
+  displayId           String             @unique
+  userId              String?
+  user                User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name                String
+  email               String
+  category            String
+  subject             String
+  description         String
+  status              String             @default("PENDING REVIEW")
+  emailNotifications  Boolean            @default(true)
+  date                DateTime           @default(now())
+  attachments         TicketAttachment[]
+  responses           TicketResponse[]
+
+  @@index([userId, date])
+  @@map("tickets")
+}
+
+model TicketAttachment {
+  id       String @id @default(cuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  filename String
+  path     String
+  mimeType String
+  size     Int
+
+  @@map("ticket_attachments")
+}
+
+model TicketResponse {
+  id       String   @id @default(cuid())
+  ticketId String
+  ticket   Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender   String
+  date     DateTime @default(now())
+  message  String
+
+  @@map("ticket_responses")
+}
