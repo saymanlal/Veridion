@@ -1,3 +1,270 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 
+  Veridion Portal - Premium Light Theme Declarations
+  Brand Primary: #0d1d3f (Navy Blue) & White
+*/
+:root {
+  --color-primary: #0d1d3f;
+  --color-primary-hover: #162e5c;
+  --color-primary-light: rgba(13, 29, 63, 0.06);
+  --color-bg-base: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-bg-accent: #f1f5f9;
+  --color-text-main: #0d1d3f;
+  --color-text-muted: #475569;
+  --color-text-white: #ffffff;
+  --color-border: rgba(13, 29, 63, 0.1);
+  --color-logo-bg: #0d1d3f;
+  --color-logo-stroke: #ffffff;
+  --color-logo-stroke-inner: #ffffff;
+}
+
+/* Base Body Styles */
+body {
+  background-color: var(--color-bg-base) !important;
+  color: var(--color-text-muted) !important;
+}
+
+/* App Shell Background Override */
+.bg-\[\#0a0a0c\] {
+  background-color: var(--color-bg-base) !important;
+  color: var(--color-text-main) !important;
+}
+.selection\:bg-\[\#c29943\]\/30::selection {
+  background-color: rgba(13, 29, 63, 0.15) !important;
+}
+.selection\:text-\[\#c29943\]::selection {
+  color: var(--color-primary) !important;
+}
+
+/* Sticky Header Custom style */
+header {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+.bg-\[\#0a0a0c\]\/95 {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Layout Cards & Containers */
+.bg-\[\#121214\] {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+.bg-\[\#0e0e11\] {
+  background-color: rgba(241, 245, 249, 0.4) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+.bg-zinc-950 {
+  background-color: rgba(248, 250, 252, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+.bg-zinc-900 {
+  background-color: rgba(241, 245, 249, 0.7) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+.bg-zinc-900\/50 {
+  background-color: rgba(13, 29, 63, 0.04) !important;
+}
+.bg-zinc-900\/80 {
+  background-color: rgba(13, 29, 63, 0.05) !important;
+}
+.bg-zinc-950\/50 {
+  background-color: rgba(13, 29, 63, 0.02) !important;
+}
+
+/* Primary Color / Gold Override rules */
+.bg-\[\#c29943\] {
+  background-color: var(--color-primary) !important;
+  color: var(--color-text-white) !important;
+}
+.bg-\[\#c29943\]:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+.hover\:bg-\[\#aa8032\]:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+.text-\[\#c29943\] {
+  color: var(--color-primary) !important;
+}
+.border-\[\#c29943\] {
+  border-color: var(--color-primary) !important;
+}
+.border-\[\#c29943\]\/30 {
+  border-color: rgba(13, 29, 63, 0.2) !important;
+}
+.border-\[\#c29943\]\/20 {
+  border-color: rgba(13, 29, 63, 0.15) !important;
+}
+.bg-\[\#c29943\]\/20 {
+  background-color: rgba(13, 29, 63, 0.08) !important;
+  color: var(--color-primary) !important;
+}
+.bg-\[\#c29943\]\/10 {
+  background-color: rgba(13, 29, 63, 0.05) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Force White Text inside primary buttons */
+button.bg-\[\#c29943\], 
+a.bg-\[\#c29943\],
+.bg-\[\#c29943\] * {
+  color: var(--color-text-white) !important;
+}
+
+/* Text Palette Overrides */
+.text-white {
+  color: var(--color-text-main) !important;
+}
+.text-zinc-100 {
+  color: var(--color-text-main) !important;
+}
+.text-zinc-200 {
+  color: var(--color-text-main) !important;
+}
+.text-zinc-300 {
+  color: var(--color-text-muted) !important;
+}
+.text-zinc-400 {
+  color: var(--color-text-muted) !important;
+}
+.text-zinc-500 {
+  color: #64748b !important;
+}
+
+/* Borders Overrides */
+.border-zinc-900, .border-zinc-800, .border-zinc-850, .border-zinc-750 {
+  border-color: var(--color-border) !important;
+}
+
+/* Sidebar Hover / Active states */
+.hover\:bg-zinc-900:hover {
+  background-color: rgba(13, 29, 63, 0.04) !important;
+}
+
+/* Badges Alignment (Green / Yellow / Red) */
+.bg-emerald-950\/30, .bg-emerald-950\/20 {
+  background-color: #ecfdf5 !important;
+}
+.text-emerald-400 {
+  color: #047857 !important;
+}
+.border-emerald-900\/50 {
+  border-color: #a7f3d0 !important;
+}
+.bg-amber-950\/30 {
+  background-color: #fffbeb !important;
+}
+.text-amber-400 {
+  color: #b45309 !important;
+}
+.border-amber-900\/50 {
+  border-color: #fde68a !important;
+}
+.bg-red-950\/20 {
+  background-color: #fef2f2 !important;
+}
+.text-red-400, .text-red-500 {
+  color: #b91c1c !important;
+}
+.border-red-900\/40 {
+  border-color: #fca5a5 !important;
+}
+.hover\:bg-red-950\/40:hover {
+  background-color: #fee2e2 !important;
+}
+.bg-emerald-500 {
+  background-color: #10b981 !important;
+}
+
+/* Corporate blueprint grid background light override */
+.absolute.inset-0.-z-10 {
+  background-image: linear-gradient(to right, rgba(13, 29, 63, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(13, 29, 63, 0.08) 1px, transparent 1px) !important;
+  opacity: 1 !important;
+}
+
+/* Inputs, Select, Textarea styling overrides */
+input, select, textarea {
+  background-color: var(--color-bg-card) !important;
+  color: var(--color-text-main) !important;
+  border: 1px solid var(--color-border) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 1px var(--color-primary) !important;
+  outline: none !important;
+}
+input:disabled, select:disabled, textarea:disabled {
+  background-color: var(--color-bg-accent) !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
+
+/* Web App Card Lift visual effects */
+.bg-\[\#121214\] {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.bg-\[\#121214\]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -8px rgba(13, 29, 63, 0.1), 0 4px 6px -2px rgba(13, 29, 63, 0.03) !important;
+  border-color: rgba(13, 29, 63, 0.18) !important;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(13, 29, 63, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 29, 63, 0.4);
+}
+
+/* Custom Cursor Desktop Overrides */
+@media (min-width: 768px) {
+  body, 
+  a, 
+  button, 
+  input, 
+  select, 
+  textarea, 
+  [role="button"], 
+  .cursor-pointer {
+    cursor: none !important;
+  }
+}
+
+/* Preloader Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes pulseSlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.97); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-pulse-slow {
+  animation: pulseSlow 2s ease-in-out infinite;
+}
+
