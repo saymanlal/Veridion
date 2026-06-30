@@ -7,29 +7,37 @@ interface Spark {
   vy: number;
   alpha: number;
   size: number;
+  hue: number;
 }
 
 interface Point {
   x: number;
   y: number;
+  t: number;
 }
+
+const GOLD = '194, 153, 67'; // #c29943 in rgb
+const GOLD_LIGHT = '224, 188, 110';
 
 export default function CustomCursor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: -1000, y: -1000 });
+  const smoothRef = useRef({ x: -1000, y: -1000 });
   const pointsRef = useRef<Point[]>([]);
   const sparksRef = useRef<Spark[]>([]);
+  const angleRef = useRef(0);
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     let animationFrameId: number;
+    let lastSpawn = 0;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -40,22 +48,23 @@ export default function CustomCursor() {
       mouseRef.current = { x: e.clientX, y: e.clientY };
       if (!visible) setVisible(true);
 
-      // Add trail point
-      pointsRef.current.push({ x: e.clientX, y: e.clientY });
-      if (pointsRef.current.length > 15) {
-        pointsRef.current.shift();
-      }
+      const now = performance.now();
+      pointsRef.current.push({ x: e.clientX, y: e.clientY, t: now });
+      if (pointsRef.current.length > 22) pointsRef.current.shift();
 
-      // Add a couple of trail sparks
-      for (let i = 0; i < 2; i++) {
-        sparksRef.current.push({
-          x: e.clientX,
-          y: e.clientY,
-          vx: (Math.random() - 0.5) * 1.5,
-          vy: (Math.random() - 0.5) * 1.5,
-          alpha: 1.0,
-          size: Math.random() * 2 + 1,
-        });
+      if (now - lastSpawn > 16) {
+        lastSpawn = now;
+        for (let i = 0; i < 2; i++) {
+          sparksRef.current.push({
+            x: e.clientX,
+            y: e.clientY,
+            vx: (Math.random() - 0.5) * 1.4,
+            vy: (Math.random() - 0.5) * 1.4 - 0.3,
+            alpha: 1,
+            size: Math.random() * 2.2 + 0.8,
+            hue: Math.random() > 0.5 ? 0 : 1,
+          });
+        }
       }
     };
 
@@ -65,43 +74,42 @@ export default function CustomCursor() {
       pointsRef.current = [];
     };
 
-    const handleMouseEnter = () => {
-      setVisible(true);
-    };
+    const handleMouseEnter = () => setVisible(true);
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target) return;
-
       const isInteractive =
         target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||
         target.tagName === 'INPUT' ||
         target.tagName === 'SELECT' ||
         target.tagName === 'TEXTAREA' ||
-        target.closest('a') ||
-        target.closest('button') ||
+        !!target.closest('a') ||
+        !!target.closest('button') ||
         target.classList.contains('cursor-pointer') ||
         target.getAttribute('role') === 'button';
-
-      setHovered(!!isInteractive);
+      setHovered(isInteractive);
     };
 
     const handleMouseDown = (e: MouseEvent) => {
-      // Click burst: emit 15 high-speed sparks
-      for (let i = 0; i < 18; i++) {
+      setPressed(true);
+      for (let i = 0; i < 24; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 3.5 + 1.5;
+        const speed = Math.random() * 4 + 2;
         sparksRef.current.push({
           x: e.clientX,
           y: e.clientY,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          alpha: 1.0,
+          alpha: 1,
           size: Math.random() * 3 + 1.5,
+          hue: Math.random() > 0.4 ? 0 : 1,
         });
       }
     };
+
+    const handleMouseUp = () => setPressed(false);
 
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('mousemove', updateMouse);
@@ -109,96 +117,103 @@ export default function CustomCursor() {
     document.addEventListener('mouseenter', handleMouseEnter);
     window.addEventListener('mouseover', handleMouseOver);
     window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
 
     resizeCanvas();
 
-    const drawTrail = () => {
+    const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       const mouse = mouseRef.current;
+      const smooth = smoothRef.current;
       const points = pointsRef.current;
       const sparks = sparksRef.current;
 
-      // 1. Draw Bezier Ribbon mouse trail
+      // Magnetic ease toward true mouse position (snappier when hovering interactive elements)
+      const ease = hovered ? 0.32 : 0.22;
+      smooth.x += (mouse.x - smooth.x) * ease;
+      smooth.y += (mouse.y - smooth.y) * ease;
+
+      angleRef.current += 0.05;
+
+      // Flowing ribbon trail
       if (points.length > 1) {
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-
-        for (let i = 1; i < points.length - 1; i++) {
-          const xc = (points[i].x + points[i + 1].x) / 2;
-          const yc = (points[i].y + points[i + 1].y) / 2;
-          ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        for (let pass = 0; pass < 2; pass++) {
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length - 1; i++) {
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
+            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+          }
+          ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          if (pass === 0) {
+            ctx.strokeStyle = `rgba(${GOLD}, 0.18)`;
+            ctx.lineWidth = hovered ? 8 : 5;
+          } else {
+            ctx.strokeStyle = `rgba(${GOLD_LIGHT}, 0.55)`;
+            ctx.lineWidth = hovered ? 2.2 : 1.4;
+          }
+          ctx.stroke();
         }
-
-        ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
-        ctx.strokeStyle = 'rgba(13, 29, 63, 0.25)';
-        ctx.lineWidth = hovered ? 4 : 2.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.stroke();
-
-        // Secondary inner glowing trail line
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length - 1; i++) {
-          const xc = (points[i].x + points[i + 1].x) / 2;
-          const yc = (points[i].y + points[i + 1].y) / 2;
-          ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
-        }
-        ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
-        ctx.strokeStyle = 'rgba(13, 29, 63, 0.6)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
       }
 
-      // 2. Update and draw path/click sparks
+      // Sparks
       for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i];
         s.x += s.vx;
         s.y += s.vy;
-        s.vy += 0.05; // soft gravity force pulling sparks downwards
-        s.alpha -= 0.025; // fade out speed
-
+        s.vy += 0.04;
+        s.vx *= 0.985;
+        s.alpha -= 0.022;
         if (s.alpha <= 0) {
           sparks.splice(i, 1);
           continue;
         }
-
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(13, 29, 63, ${s.alpha * 0.75})`;
+        ctx.fillStyle = `rgba(${s.hue === 0 ? GOLD : GOLD_LIGHT}, ${s.alpha * 0.85})`;
         ctx.fill();
       }
 
-      // 3. Draw static cursor coordinates helper (dot & ring)
-      if (mouse.x > -500 && visible) {
-        // Outer pulsing ring
+      // Cursor core: rotating orbit ring + pulsing halo + dot
+      if (smooth.x > -500 && visible) {
+        const baseR = hovered ? 16 : 9;
+        const pulse = Math.sin(performance.now() / 220) * 1.5;
+
+        // Outer soft halo
+        const grad = ctx.createRadialGradient(smooth.x, smooth.y, 0, smooth.x, smooth.y, baseR + 14);
+        grad.addColorStop(0, `rgba(${GOLD}, ${pressed ? 0.35 : 0.18})`);
+        grad.addColorStop(1, `rgba(${GOLD}, 0)`);
         ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, hovered ? 14 : 7, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(13, 29, 63, 0.45)';
+        ctx.fillStyle = grad;
+        ctx.arc(smooth.x, smooth.y, baseR + 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating dashed orbit ring
+        ctx.save();
+        ctx.translate(smooth.x, smooth.y);
+        ctx.rotate(angleRef.current);
+        ctx.beginPath();
+        ctx.setLineDash([4, 5]);
+        ctx.strokeStyle = `rgba(${GOLD_LIGHT}, 0.75)`;
         ctx.lineWidth = 1.2;
+        ctx.arc(0, 0, baseR + pulse, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.restore();
 
-        // Inner solid dot
+        // Inner solid dot, scales on press
         ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#0d1d3f';
+        ctx.arc(smooth.x, smooth.y, pressed ? 4.5 : 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgb(${GOLD_LIGHT})`;
         ctx.fill();
       }
 
-      // Smooth decay of points when mouse is stationary
-      if (points.length > 0) {
-        // Slowly drop points from the beginning
-        const timer = setTimeout(() => {
-          if (points.length > 0) points.shift();
-        }, 100);
-        clearTimeout(timer);
-      }
-
-      animationFrameId = requestAnimationFrame(drawTrail);
+      animationFrameId = requestAnimationFrame(draw);
     };
 
-    drawTrail();
+    draw();
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
@@ -207,15 +222,16 @@ export default function CustomCursor() {
       document.removeEventListener('mouseenter', handleMouseEnter);
       window.removeEventListener('mouseover', handleMouseOver);
       window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [visible, hovered]);
+  }, [visible, hovered, pressed]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-50 bg-transparent"
-      style={{ mixBlendMode: 'multiply' }}
+      className="fixed inset-0 pointer-events-none z-[60] bg-transparent"
+      style={{ mixBlendMode: 'screen' }}
     />
   );
 }
