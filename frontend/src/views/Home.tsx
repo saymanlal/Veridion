@@ -13,13 +13,13 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-[#c29943]/30 text-[#c29943] text-[10px] font-bold tracking-widest uppercase">
             <span className="flex h-2 w-2 rounded-full bg-[#c29943] animate-pulse"></span>
-            SECURE DYNAMIC LEDGER PLAYGROUND
+            Secure Transactional and Debts Layer
           </div>
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            Deploy Compliance <span className="text-[#c29943]">Sandbox Engines</span>
+            Tokenomics for <span className="text-[#c29943]">Investment and Spending parallely</span>
           </h1>
           <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Analyze payloads and trade currencies within our real-time administrative mock framework. Protect transaction security using client-side inactivity firewalls and dynamic TOTP matrices.
+            Analyze payloads and trade currencies within our real-time administrative blockchain. Protect transaction security using client-side inactivity firewalls and dynamic TOTP matrices.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
